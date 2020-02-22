@@ -1,0 +1,16 @@
+---
+# ansible-role-kvm defaults
+kvm_required_packages:
+  - qemu-kvm
+  - libvirt-bin
+  - libvirt-clients
+  - python-libvirt
+  - python3-libvirt
+  - system-config-kickstart
+  - virt-manager
+  - virtinst
+
+kvm_required_bridges:
+  - name: br1020
+    vlan: 1020
+    intf: enx00e04c6812b0

@@ -1,0 +1,51 @@
+# Steps:
+# 1a. Update package cache
+# 1b. Install required packages
+# 2. Disable virbr0
+# 3a. Create default + user bridges
+# 3b. Add physical interfaces to bridges
+# 3c. Set bridges up
+
+- name: Step 1a - Update APT package cache
+  apt:
+    update_cache: true
+    cache_valid_time: 0
+  retries: 2
+  delay: 5
+  tags: [ kvm-install, always ]
+
+- name: Step 1b - Install required packages
+  apt:
+    state: present
+    pkg: "{{ kvm_required_packages + kvm_required_packages_user | default([])  }}"
+  retries: 2
+  delay: 5
+  tags: [ kvm-install, always ]
+
+- name: Step 2 - Remove virbr0
+  command: virsh net-autostart --disable default
+  become: yes
+  tags: [ remove-virbr0, always ]
+
+- name: Combine kvm_required_bridges and kvm_required_bridges_user (if defined)
+  set_fact:
+    kvm_required_bridges: "{{ kvm_required_bridges | combine(kvm_required_bridges_user|default({})) }}"
+  tags: [ create-bridges, always ]
+
+- name: Step 3a - Create bridges
+  command: brctl addbr {{item.name}}
+  become: yes
+  with_items: "{{ kvm_required_bridges }}"
+  tags: [ create-bridges, always ]
+
+- name: Step 3b - Add physical interfaces to bridges
+  command: brctl addif {{item.intf}}
+  become: yes
+  with_items: "{{ kvm_required_bridges }}"
+  tags: [ create-bridges, always ]
+
+- name: Step 3c - Bring bridges up
+  command: ip link set dev {{ item.name }} up
+  become: yes
+  with_items: "{{ kvm_required_bridges }}"
+  tags: [ create-bridges, always ]
