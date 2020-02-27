@@ -19,3 +19,7 @@ kvm_required_bridges: []
 #  - name: br1010
 #    vlan: 1010
 #    intf: eth0
+#    #optionally, it is possible to specify the following per bridge:
+#    ipad: '10.10.20.50/24'
+#    ipgw: '10.10.20.1'
+#    dnss: '10.10.20.1, 1.1.1.1'

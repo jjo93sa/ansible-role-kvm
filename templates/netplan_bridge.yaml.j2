@@ -1,0 +1,21 @@
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    {{item.intf}}:
+      dhcp4: no
+      dhcp6: no
+  bridges:
+    {{item.name}}:
+      dhcp4: no
+      dhcp6: no
+      interfaces: [ {{item.intf}} ]
+{% if item.ipad is defined %}
+      addresses: [ {{item.ipad }} ]
+      gateway4: {{item.ipgw}}
+      nameservers:
+        addresses: [ {{item.dnss}} ]
+#      parameters:
+#        stp: true
+#        forward-delay: 4
+{% endif %}
