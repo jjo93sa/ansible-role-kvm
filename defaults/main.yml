@@ -10,7 +10,12 @@ kvm_required_packages:
   - virt-manager
   - virtinst
 
-kvm_required_bridges:
-  - name: br1020
-    vlan: 1020
-    intf: enx00e04c6812b0
+kvm_required_bridges: []
+# Example:
+# kvm_required_bridges:
+#  - name: br1020
+#    vlan: 1020
+#    intf: enx00e04c6812b0
+#  - name: br1010
+#    vlan: 1010
+#    intf: eth0

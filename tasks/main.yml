@@ -2,9 +2,12 @@
 # 1a. Update package cache
 # 1b. Install required packages
 # 2. Disable virbr0
-# 3a. Create default + user bridges
-# 3b. Add physical interfaces to bridges
-# 3c. Set bridges up
+# 3a. List existing bridges
+# 3b. Create required default
+# 3c. Add physical interfaces to bridges
+# 3d. Set bridges up
+# 3e. Set bridge interfaces up
+# 4. Profit
 
 - name: Step 1a - Update APT package cache
   apt:
@@ -27,25 +30,44 @@
   become: yes
   tags: [ remove-virbr0, always ]
 
-- name: Combine kvm_required_bridges and kvm_required_bridges_user (if defined)
-  set_fact:
-    kvm_required_bridges: "{{ kvm_required_bridges | combine(kvm_required_bridges_user|default({})) }}"
-  tags: [ create-bridges, always ]
+- debug:
+    var: kvm_required_bridges
+  tags: debug
 
-- name: Step 3a - Create bridges
+- name: Step 3a - List existing bridges
+  shell: brctl show | tail -n +2 | awk '{ print $1 }'
+  register: existing_bridges
+  become: true
+  tags: [ always ]
+
+- debug:
+    msg: "{{ existing_bridges }}"
+  tags: [ never, debug ]
+
+- name: Step 3b - Create bridges
   command: brctl addbr {{item.name}}
   become: yes
   with_items: "{{ kvm_required_bridges }}"
+  when: item.name not in existing_bridges.stdout_lines
   tags: [ create-bridges, always ]
 
-- name: Step 3b - Add physical interfaces to bridges
-  command: brctl addif {{item.intf}}
+- name: Step 3c - Add physical interfaces to bridges
+  command: brctl addif {{item.name}} {{item.intf}}
   become: yes
   with_items: "{{ kvm_required_bridges }}"
+  when: item.name not in existing_bridges.stdout_lines
   tags: [ create-bridges, always ]
 
-- name: Step 3c - Bring bridges up
+- name: Step 3d - Bring bridges up
   command: ip link set dev {{ item.name }} up
   become: yes
   with_items: "{{ kvm_required_bridges }}"
+  when: item.name not in existing_bridges.stdout_lines
+  tags: [ create-bridges, always ]
+
+- name: Step 3e - Bring bridge external interface up
+  command: ip link set {{ item.intf }} up
+  become: yes
+  with_items: "{{ kvm_required_bridges }}"
+  when: item.name not in existing_bridges.stdout_lines
   tags: [ create-bridges, always ]
