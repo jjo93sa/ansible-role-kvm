@@ -2,20 +2,24 @@ network:
   version: 2
   renderer: networkd
   ethernets:
-    {{item.intf}}:
+    {{item.interface}}:
       dhcp4: no
       dhcp6: no
+
+  vlans:
+{% for vlan in item.vlans %}
+    vlan{{vlan}}:
+      dhcp4: no
+      dhcp6: no
+      accept-ra: no
+      id: {{vlan}}
+      link: {{ item.interface }}
+{% endfor %}
+
   bridges:
-    {{item.name}}:
+{% for vlan in item.vlans %}
+    br{{vlan}}:
       dhcp4: no
       dhcp6: no
-      interfaces: [ {{item.intf}} ]
-{% if item.ipad is defined %}
-      addresses: [ {{item.ipad }} ]
-      gateway4: {{item.ipgw}}
-      nameservers:
-        addresses: [ {{item.dnss}} ]
-#      parameters:
-#        stp: true
-#        forward-delay: 4
-{% endif %}
+      interfaces: [ vlan{{vlan}} ]
+{% endfor %}

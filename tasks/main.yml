@@ -43,10 +43,11 @@
   tags: [ never, debug ]
 
 # Always create netplan files so we can apply changes between runs
-- name: Step 3b - Create netplan files for bridges, replace if different
+# This creates one file per interface
+- name: Step 3b - Create netplan files for intf, vlans, bridges
   template:
     src: netplan_bridge.yaml.j2
-    dest: /etc/netplan/{{item.name}}.yaml
+    dest: /etc/netplan/{{item.interface}}_bridges.yaml
     owner: root
     group: root
     mode: '0644'
@@ -54,6 +55,8 @@
   with_items: "{{ kvm_required_bridges }}"
   tags: [ create-bridges, always ]
 
+# This does not seem to be idempotent in that netplan does not remove
+# vlan interfaces and bridges if their config is removed.
 - name: Step 3c - Apply all netplan configuration(s)
   command: netplan apply
   become: true
