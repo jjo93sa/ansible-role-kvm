@@ -15,10 +15,10 @@ keyboard us
 mouse
 
 # J2O: Static network
-{% if  hostvars[item].kvm_guest_ip_address is defined %}
-network --bootproto=static --device={{hostvars[inventory_hostname].kvm_guest_mac_dict[item]}} --ip={{hostvars[item].kvm_guest_ip_address}} --netmask={{hostvars[item].kvm_guest_netmask}} --gateway={{hostvars[item].kvm_guest_gateway}} --nameserver={{hostvars[item].kvm_guest_dns}} --hostname={{hostvars[item].kvm_guest_name}}
-{% else %}
+{% if  hostvars[item].kvm_guest_dhcp is defined %}
 network --bootproto=dhcp --device={{hostvars[inventory_hostname].kvm_guest_mac_dict[item]}} --hostname={{hostvars[item].kvm_guest_name}}
+{% else %}
+network --bootproto=static --device={{hostvars[inventory_hostname].kvm_guest_mac_dict[item]}} --ip={{hostvars[item].kvm_guest_ip_address}} --netmask={{hostvars[item].kvm_guest_netmask}} --gateway={{hostvars[item].kvm_guest_gateway}} --nameserver={{hostvars[item].kvm_guest_dns}} --hostname={{hostvars[item].kvm_guest_name}}
 {% endif %}
 
 # System timezone. See later for NTP settings
