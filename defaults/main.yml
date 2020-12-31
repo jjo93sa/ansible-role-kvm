@@ -1,15 +1,15 @@
 ---
 # ansible-role-kvm defaults
 kvm_required_packages:
-  - qemu-kvm
-  - libvirt-bin
+  - bridge-utils
   - libvirt-clients
-  - python-libvirt
+  - libvirt-daemon-system
   - python3-libvirt
-  - system-config-kickstart
+  - qemu-kvm
   - virt-manager
   - virtinst
 
+    # system-config-kickstart
 kvm_required_bridges: []
 # Example:
 # kvm_required_bridges:
