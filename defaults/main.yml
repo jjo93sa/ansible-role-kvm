@@ -2,6 +2,7 @@
 # ansible-role-kvm defaults
 kvm_required_packages:
   - bridge-utils
+  - cloud-image-utils
   - libvirt-clients
   - libvirt-daemon-system
   - python3-libvirt
